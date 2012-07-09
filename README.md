@@ -14,6 +14,7 @@ You can supply either an IP address or an URL for the server.
 initialise takes the following parameters; the memory address of the usb serial (always &Serial), the memory address of the gsm serial (this will differ depending on the pins used to connect the module e.g. tx2,rx2 -> &Serial2), apn, apn username and password, pin number connected to the gsm reset pin.
 
 Currently the test sketch is set to use the vodafone network, but here are some common apn's for other networks:
+
 	Vodafone
     APN (contract): internet
     APN (PAYG): pp.vodafone.co.uk
