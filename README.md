@@ -4,7 +4,7 @@ gsm-http-client
 GSM HTTP client for Arduino.
 
 
-Installation:
+<h3>Installation:</h3>
 
 Copy the libaries folder into /home/user/sketchbook/ a restart of the arduino IDE may be necessary.
 
