@@ -1,0 +1,118 @@
+/*
+	SerialInterface.cpp - Library for interfacing with serial ports
+	Created by Scott Williams, 05/07/2012
+*/
+#include "Arduino.h"
+#include "string.h"
+#include "SerialInterface.h"
+
+#define BUFFSIZE 200
+
+HardwareSerial *USBSerial;
+HardwareSerial *GSMSerial;
+
+SerialInterface::SerialInterface()
+{	
+}
+
+void SerialInterface::initialise(HardwareSerial *&_USBSerial, HardwareSerial *&_GSMSerial)
+{
+	USBSerial = _USBSerial;
+	GSMSerial = _GSMSerial;
+	USBSerial->begin(115200);
+	GSMSerial->begin(115200);
+}
+
+bool SerialInterface::pollForResponseFromCommand(String command, String expectedResponse, bool resendCommand)
+{
+	char c, at_buffer[BUFFSIZE], expected[expectedResponse.length()+1];
+	expectedResponse.toCharArray(expected, sizeof(expected)+1);
+	byte buffidx = 0;
+	
+	if(!command.equals(""))
+		printlnToGSM(command);
+	
+	unsigned long startTime = micros();	
+	while(1)
+	{
+		if(resendCommand)
+		{
+			printlnToGSM(command);
+			delay(200);
+		}
+		buffidx = 0;
+		while(1) 
+		{
+			if(micros() - startTime > 1000000*40)
+			{
+				return false;
+			}
+			if(GSMAvailable())
+			{
+			    c = readGSM();
+				Serial.print(c);
+				if((buffidx == BUFFSIZE - 1) || (c == '\r'))
+				{
+		            at_buffer[buffidx] = '\0';
+		            break;				
+		        }
+		        at_buffer[buffidx++]= c;				
+			}
+		}
+				
+		if(strstr(at_buffer, expected) != 0)
+		{
+		    return true;
+	    }
+	}	
+}
+
+void SerialInterface::printToDebug(String data)
+{
+	USBSerial->print(data);
+}
+
+void SerialInterface::printToDebug(char c)
+{
+	USBSerial->print(c);
+}
+
+void SerialInterface::printlnToDebug(String data)
+{
+	USBSerial->println(data);
+}
+
+void SerialInterface::printToGSM(String data)
+{	
+	GSMSerial->print(data);
+}
+
+void SerialInterface::printToGSM(char c)
+{
+	GSMSerial->print(c);
+}
+
+void SerialInterface::writeToGSM(int c)
+{
+	GSMSerial->write(c);
+}
+
+void SerialInterface::printlnToGSM(String data)
+{
+	GSMSerial->println(data);
+}
+
+char SerialInterface::readDebug()
+{
+	return USBSerial->read();
+}
+
+char SerialInterface::readGSM()
+{
+	return GSMSerial->read();
+}
+
+bool SerialInterface::GSMAvailable()
+{
+	return GSMSerial->available();
+}
