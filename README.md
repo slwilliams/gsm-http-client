@@ -1,4 +1,4 @@
 gsm-http-client
 ===============
 
-GSM HTTP client for Arduino
+GSM HTTP client for Arduino.
