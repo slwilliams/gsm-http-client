@@ -119,10 +119,10 @@ void GSMInterface::closeSocket()
 
 void GSMInterface::resetGSM()
 {
-	pinMode(gsmResetPin, OUTPUT);
-	digitalWrite(gsmResetPin, LOW);
-	delay(50);
-	digitalWrite(gsmResetPin, HIGH);
+	/*pinMode(2, OUTPUT);
+	digitalWrite(2, LOW);
 	delay(500);
-	delay(5000);
+	digitalWrite(2, HIGH);
+	delay(500);
+	delay(5000);*/
 }
