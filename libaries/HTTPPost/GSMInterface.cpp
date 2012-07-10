@@ -1,3 +1,4 @@
+
 /*
 	GSMInterface.cpp - Library for interfacing with the gsm module
 	Created by Scott Williams, 05/07/2012
@@ -30,6 +31,9 @@ void GSMInterface::initialise(SerialInterface *_serialInterface, String _pdpCont
 
 bool GSMInterface::sendPacket(String server, int port, String packet) 
 {
+	if(packet.length() > 990)
+		return false;
+	
 	while(1)
 	{
 		if(!openTCPSocket(server, port))

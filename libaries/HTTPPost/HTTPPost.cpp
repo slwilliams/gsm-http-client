@@ -25,14 +25,14 @@ void HTTPPost::initialise(HardwareSerial *_USBSerial, HardwareSerial *_GSMSerial
 	serialInterface.printlnToDebug("[Initialise Finished]");
 }
 
-bool HTTPPost::post(String server, int port, String path, String content)
+bool HTTPPost::post(String server, int port, String path, String content, String contentType)
 {
-	String packet = "POST " + path + " HTTP/1.0\r\nConnection: Keep-Alive\r\nContent-Length: " + String(content.length()+2) + "\r\n\r\n" + content + "\r\n" + (char)26;	
+	String packet = "POST " + path + " HTTP/1.0\r\n" + contentType + "\r\nContent-Length: " + String(content.length()+2) + "\r\n\r\n" + content + "\r\n" + (char)26;	
 	return sender->sendPacket(server, port, packet);
 }
 
 bool HTTPPost::get(String server, int port, String path, String content)
 {
-	String packet = "GET " + path + "?data=" + content + " HTTP/1.0\r\nConnection: Keep-Alive\r\n\r\n" + (char)26;	
+	String packet = "GET " + path + content + " HTTP/1.0\r\nConnection: Keep-Alive\r\n\r\n" + (char)26;	
 	return sender->sendPacket(server, port, packet);
 }

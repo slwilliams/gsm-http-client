@@ -10,9 +10,8 @@ void setup()
 
 void loop() 
 {
-  String data = String(random(1000));
-  Serial.println("Sending: " + data);
-  post.post("108.174.49.28", 80, "/recorder.php", data);
+  post.get("108.174.49.28", 80, "/test.php", "data1=test&data2=test2");
   delay(100);
-  post.post("scottwilliams.org.uk", 80, "/posttest.php", "data=thisistest1234");
+  post.post("scottwilliams.org.uk", 80, "/posttest.php", "data=thisistest1234&data2=this", "Content-Type: application/x-www-form-urlencoded");
+  delay(100);
 }
