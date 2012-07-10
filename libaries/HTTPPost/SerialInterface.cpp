@@ -50,7 +50,7 @@ bool SerialInterface::pollForResponseFromCommand(String command, String expected
 			if(GSMAvailable())
 			{
 			    c = readGSM();
-				Serial.print(c);
+			//	Serial.print(c);
 				if((buffidx == BUFFSIZE - 1) || (c == '\r'))
 				{
 		            at_buffer[buffidx] = '\0';
