@@ -8,8 +8,7 @@ GSM HTTP client for Arduino.
 
 Copy the libaries folder into /home/user/sketchbook/ a restart of the arduino IDE may be necessary.
 
-The test sketch shows the main functionality of the library - it can send data via POST or GET. The GET request uses the variable data for the data being transmitted i.e. the url sent is: http://108.174.49.28/test.php?data=1234 Both POST and GET methods have a data length limit of 900 characters.
-You can supply either an IP address or an URL for the server.
+The test sketch shows the main functionality of the library - it can send data via POST or GET. You can supply either an IP address or an URL for the server.
 
 initialise takes the following parameters; the memory address of the usb serial (always &Serial), the memory address of the gsm serial (this will differ depending on the pins used to connect the module e.g. tx2,rx2 -> &Serial2), apn, apn username and password, pin number connected to the gsm reset pin.
 
