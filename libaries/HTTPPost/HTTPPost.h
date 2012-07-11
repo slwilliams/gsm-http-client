@@ -12,8 +12,8 @@ class HTTPPost
 {
 	public:
 		HTTPPost();
-		void initialise(HardwareSerial *_usbSerial, HardwareSerial *_GSMSerial, String pdpContext, String userPassword, byte gsmResetPin);
-		bool post(String server, int port, String path, String content, String contentType);
-		bool get(String server, int port, String path, String content);
+		int initialise(HardwareSerial *_usbSerial, HardwareSerial *_GSMSerial, String pdpContext, String userPassword, byte gsmResetPin);
+		int post(String server, int port, String path, String content, String contentType);
+		int get(String server, int port, String path, String content);
 };
 #endif

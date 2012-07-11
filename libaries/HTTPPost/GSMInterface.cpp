@@ -18,81 +18,93 @@ GSMInterface::GSMInterface()
 {	
 }
 
-void GSMInterface::initialise(SerialInterface *_serialInterface, String _pdpContext, String _userPassword, byte _gsmResetPin)
+int GSMInterface::initialise(SerialInterface *_serialInterface, String _pdpContext, String _userPassword, byte _gsmResetPin)
 {
 	serialinterface = _serialInterface;
 	pdpContext = _pdpContext;
 	userPassword = _userPassword;
 	gsmResetPin = _gsmResetPin;
 	resetGSM();
-	registerGPRS_GSM();
-	setUpPDP();
+	if(!registerGPRS_GSM())
+		return 504;
+	if(!setUpPDP())
+		return 503;
+	else
+		return 200;
 }
 
-bool GSMInterface::sendPacket(String server, int port, String packet) 
+int GSMInterface::sendPacket(String server, int port, String packet) 
 {
-	if(packet.length() > 990)
-		return false;
-	
-	while(1)
-	{
-		if(!openTCPSocket(server, port))
-		{
-			resetGSM();			
-			registerGPRS_GSM();
-			setUpPDP();
-			continue;
-		}
+	if(!openTCPSocket(server, port))
+		return 500;
 		
+	int packetSize = packet.length()-1;
+	serialinterface->printToGSM("AT+SDATATSEND=1," + String(packetSize));
+	serialinterface->writeToGSM(13);
+	delay(100);
+	serialinterface->printToGSM(packet);
+	
+	if(serialinterface->pollForResponseFromCommand("", "OK", false))
+	{
+		delay(100);
+		closeSocket();
+		return 200;
+	}
+	else
+	{
+		closeSocket();
+		return 501;
+	}
+}
+
+int GSMInterface::sendPacketChunked(String server, int port, String path, String content, String contentType) 
+{
+	Serial.println("Calculating chunks");
+	byte numChunks = ceil(content.length()%(999-(47 + String(port).length() + path.length() + contentType.length() + String(content.length()).length())));
+	Serial.println(numChunks);
+	
+	while(1){}
+	
+	if(!openTCPSocket(server, port))
+		return 500;
+		
+/*	while(1)
+	{
 		int packetSize = packet.length()-1;
 		serialinterface->printToGSM("AT+SDATATSEND=1," + String(packetSize));
-	  	serialinterface->writeToGSM(13);
-	  	delay(100);
+		serialinterface->writeToGSM(13);
+		delay(100);
 		serialinterface->printToGSM(packet);
 		delay(100);	
 		
 		if(serialinterface->pollForResponseFromCommand("", "OK", false))
-		{		
-			serialinterface->printlnToDebug("[Data sent]");
-			closeSocket();		
-			return true;			
-		}
-		
-		resetGSM();		
-		registerGPRS_GSM();
-		setUpPDP();		
-	}
-}
-
-void GSMInterface::registerGPRS_GSM()
-{
-	while(1)
-	{
-		serialinterface->printlnToDebug("[GPRS Attaching]");	
-		if(serialinterface->pollForResponseFromCommand("AT+CGATT?", "+CGATT: 1", true))
-			break;
-		else
-			resetGSM();	
-	}
-}
-
-void GSMInterface::setUpPDP()
-{
-	while(1)
-	{	
-		serialinterface->pollForResponseFromCommand("AT+CGDCONT=1," + pdpContext, "OK", false);
-		serialinterface->pollForResponseFromCommand("AT+CGPCO=0," + userPassword + ", 1", "OK", false);		    
-		serialinterface->printlnToDebug("[Activating PDP]");
-		if(serialinterface->pollForResponseFromCommand("AT+CGACT=1,1", "OK", false))
 		{
-			break;
+			serialinterface->printlnToDebug("Sent chunk");
+			//numSent ++;
 		}
 		else
 		{
-			resetGSM();			
-			registerGPRS_GSM();
+			closeSocket();
+			return 501;
 		}
-	}
+	}*/
+
+}
+
+bool GSMInterface::registerGPRS_GSM()
+{
+	serialinterface->printlnToDebug("[GPRS Attaching]");	
+	return serialinterface->pollForResponseFromCommand("AT+CGATT?", "+CGATT: 1", true);
+}
+
+bool GSMInterface::setUpPDP()
+{
+	if(!serialinterface->pollForResponseFromCommand("AT+CGDCONT=1," + pdpContext, "OK", false))
+		return false;
+	if(!serialinterface->pollForResponseFromCommand("AT+CGPCO=0," + userPassword + ", 1", "OK", false))
+		return false;
+	serialinterface->printlnToDebug("[Activating PDP]");
+	return serialinterface->pollForResponseFromCommand("AT+CGACT=1,1", "OK", false);	
 }
 
 bool GSMInterface::openTCPSocket(String server, int port)
@@ -119,10 +131,10 @@ void GSMInterface::closeSocket()
 
 void GSMInterface::resetGSM()
 {
-	/*pinMode(2, OUTPUT);
-	digitalWrite(2, LOW);
-	delay(500);
-	digitalWrite(2, HIGH);
-	delay(500);
+	/*Serial1.flush();
+	digitalWrite(31, LOW);
+	pinMode(31, OUTPUT);
+	delay(3000);	
+	pinMode(31, INPUT);
 	delay(5000);*/
 }

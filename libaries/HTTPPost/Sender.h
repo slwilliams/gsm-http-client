@@ -10,6 +10,7 @@
 class Sender 
 {
 	public:
-		virtual bool sendPacket(String server, int port, String packet) = 0;
+		virtual int sendPacket(String server, int port, String packet) = 0;
+		virtual int sendPacketChunked(String server, int port, String path, String content, String contentType) = 0;
 };
 #endif

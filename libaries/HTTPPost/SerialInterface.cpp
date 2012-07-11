@@ -7,6 +7,7 @@
 #include "SerialInterface.h"
 
 #define BUFFSIZE 200
+#define DELAY 40
 
 HardwareSerial *USBSerial;
 HardwareSerial *GSMSerial;
@@ -43,14 +44,14 @@ bool SerialInterface::pollForResponseFromCommand(String command, String expected
 		buffidx = 0;
 		while(1) 
 		{
-			if(micros() - startTime > 1000000*40)
+			if(micros() - startTime > 1000000*DELAY)
 			{
 				return false;
 			}
 			if(GSMAvailable())
 			{
 			    c = readGSM();
-				Serial.print(c);
+				printToDebug(c);
 				if((buffidx == BUFFSIZE - 1) || (c == '\r'))
 				{
 		            at_buffer[buffidx] = '\0';
@@ -59,11 +60,15 @@ bool SerialInterface::pollForResponseFromCommand(String command, String expected
 		        at_buffer[buffidx++]= c;				
 			}
 		}
+		
+		if(strstr(at_buffer, "+CME ERROR: 29"))
+			return false;
+
+		if(strstr(at_buffer, "+STCPC:1"))
+			return false;
 				
 		if(strstr(at_buffer, expected) != 0)
-		{
 		    return true;
-	    }
 	}	
 }
 

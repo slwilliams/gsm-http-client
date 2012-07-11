@@ -17,22 +17,22 @@ HTTPPost::HTTPPost()
 {	
 }
 
-void HTTPPost::initialise(HardwareSerial *_USBSerial, HardwareSerial *_GSMSerial, String pdpContext, String userPassword, byte gsmResetPin) 
+int HTTPPost::initialise(HardwareSerial *_USBSerial, HardwareSerial *_GSMSerial, String pdpContext, String userPassword, byte gsmResetPin) 
 {
 	serialInterface.initialise(_USBSerial, _GSMSerial);	
-	gsmInterface.initialise(&serialInterface, pdpContext, userPassword, gsmResetPin);	
+	int response = gsmInterface.initialise(&serialInterface, pdpContext, userPassword, gsmResetPin);	
 	sender = &gsmInterface;
-	serialInterface.printlnToDebug("[Initialise Finished]");
+	return response;
 }
 
-bool HTTPPost::post(String server, int port, String path, String content, String contentType)
+int HTTPPost::post(String server, int port, String path, String content, String contentType)
 {
-	String packet = "POST " + path + " HTTP/1.0\r\n" + contentType + "\r\nContent-Length: " + String(content.length()+2) + "\r\n\r\n" + content + "\r\n" + (char)26;	
+	String packet = "POST " + path + " HTTP/1.1\r\nHost: " + server + ":" + String(port) + "\r\n" + contentType + "\r\nContent-Length: " + String(content.length()) + "\r\n\r\n" + content + "\r\n" + (char)26;	
 	return sender->sendPacket(server, port, packet);
 }
 
-bool HTTPPost::get(String server, int port, String path, String content)
+int HTTPPost::get(String server, int port, String path, String content)
 {
-	String packet = "GET " + path + content + " HTTP/1.0\r\nConnection: Keep-Alive\r\n\r\n" + (char)26;	
+	String packet = "GET " + path + content + " HTTP/1.0\r\n\r\n" + (char)26;	
 	return sender->sendPacket(server, port, packet);
 }

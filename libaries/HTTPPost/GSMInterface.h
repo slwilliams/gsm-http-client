@@ -14,11 +14,12 @@ class GSMInterface:public Sender
 {
 	public:
 		GSMInterface();	
-		void initialise(SerialInterface *_serialInterface, String pdpContext, String userPassword, byte _gsmResetPin);
-		bool sendPacket(String server, int port, String packet);
+		int initialise(SerialInterface *_serialInterface, String pdpContext, String userPassword, byte _gsmResetPin);
+		int sendPacket(String server, int port, String packet);
+		int sendPacketChunked(String server, int port, String path, String content, String contentType);
 	private:	
-		void registerGPRS_GSM();
-		void setUpPDP();
+		bool registerGPRS_GSM();
+		bool setUpPDP();
 		bool openTCPSocket(String server, int port);
 		void resetGSM();
 		void closeSocket();
