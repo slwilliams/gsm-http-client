@@ -16,13 +16,13 @@ class GSMInterface:public Sender
 		GSMInterface();	
 		int initialise(SerialInterface *_serialInterface, String pdpContext, String userPassword, byte _gsmResetPin);
 		int sendPacket(String server, int port, String packet);
-		int sendPacketChunked(String server, int port, String path, String content, String contentType);
+		bool openTCPSocket(String server, int port);
+		bool sendRawPacket(String packet);
+		void closeTCPSocket();
 	private:	
 		bool registerGPRS_GSM();
-		bool setUpPDP();
-		bool openTCPSocket(String server, int port);
+		bool setUpPDP(String pdpContext, String userPassword);
 		void resetGSM();
-		void closeSocket();
 		SerialInterface *interface;
 		String pdpContext;
 		String userPassword;

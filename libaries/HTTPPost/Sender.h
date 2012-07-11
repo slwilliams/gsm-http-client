@@ -11,6 +11,8 @@ class Sender
 {
 	public:
 		virtual int sendPacket(String server, int port, String packet) = 0;
-		virtual int sendPacketChunked(String server, int port, String path, String content, String contentType) = 0;
+		virtual bool openTCPSocket(String server, int port) = 0;
+		virtual bool sendRawPacket(String packet) = 0;
+		virtual void closeTCPSocket() = 0;
 };
 #endif

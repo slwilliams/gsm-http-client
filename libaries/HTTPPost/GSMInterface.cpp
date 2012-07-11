@@ -10,7 +10,6 @@
 
 //Can't seem to call this serialInterface for some reason
 SerialInterface *serialinterface;
-String pdpContext, userPassword;
 byte gsmResetPin;
 
 
@@ -18,16 +17,14 @@ GSMInterface::GSMInterface()
 {	
 }
 
-int GSMInterface::initialise(SerialInterface *_serialInterface, String _pdpContext, String _userPassword, byte _gsmResetPin)
+int GSMInterface::initialise(SerialInterface *_serialInterface, String pdpContext, String userPassword, byte _gsmResetPin)
 {
 	serialinterface = _serialInterface;
-	pdpContext = _pdpContext;
-	userPassword = _userPassword;
 	gsmResetPin = _gsmResetPin;
 	resetGSM();
 	if(!registerGPRS_GSM())
 		return 504;
-	if(!setUpPDP())
+	if(!setUpPDP(pdpContext, userPassword))
 		return 503;
 	else
 		return 200;
@@ -47,48 +44,35 @@ int GSMInterface::sendPacket(String server, int port, String packet)
 	if(serialinterface->pollForResponseFromCommand("", "OK", false))
 	{
 		delay(100);
-		closeSocket();
+		closeTCPSocket();
 		return 200;
 	}
 	else
 	{
-		closeSocket();
+		closeTCPSocket();
 		return 501;
 	}
 }
 
-int GSMInterface::sendPacketChunked(String server, int port, String path, String content, String contentType) 
-{
-	Serial.println("Calculating chunks");
-	byte numChunks = ceil(content.length()%(999-(47 + String(port).length() + path.length() + contentType.length() + String(content.length()).length())));
-	Serial.println(numChunks);
+bool GSMInterface::sendRawPacket(String packet) 
+{	
+	int packetSize = packet.length()-1;
+	serialinterface->printToGSM("AT+SDATATSEND=1," + String(packetSize));
+	serialinterface->writeToGSM(13);
+	delay(100);
+	Serial.println(packet);
+	serialinterface->printToGSM(packet);
+	delay(100);	
 	
-	while(1){}
-	
-	if(!openTCPSocket(server, port))
-		return 500;
-		
-/*	while(1)
+	if(serialinterface->pollForResponseFromCommand("", "OK", false))
 	{
-		int packetSize = packet.length()-1;
-		serialinterface->printToGSM("AT+SDATATSEND=1," + String(packetSize));
-		serialinterface->writeToGSM(13);
-		delay(100);
-		serialinterface->printToGSM(packet);
-		delay(100);	
-		
-		if(serialinterface->pollForResponseFromCommand("", "OK", false))
-		{
-			serialinterface->printlnToDebug("Sent chunk");
-			//numSent ++;
-		}
-		else
-		{
-			closeSocket();
-			return 501;
-		}
-	}*/
-
+		return true;
+	}
+	else
+	{
+		closeTCPSocket();
+		return false;
+	}
 }
 
 bool GSMInterface::registerGPRS_GSM()
@@ -97,7 +81,7 @@ bool GSMInterface::registerGPRS_GSM()
 	return serialinterface->pollForResponseFromCommand("AT+CGATT?", "+CGATT: 1", true);
 }
 
-bool GSMInterface::setUpPDP()
+bool GSMInterface::setUpPDP(String pdpContext, String userPassword)
 {
 	if(!serialinterface->pollForResponseFromCommand("AT+CGDCONT=1," + pdpContext, "OK", false))
 		return false;
@@ -109,6 +93,7 @@ bool GSMInterface::setUpPDP()
 
 bool GSMInterface::openTCPSocket(String server, int port)
 {
+	delay(200);
 	serialinterface->pollForResponseFromCommand("AT+SDATACONF=1,\"TCP\",\"" + server + "\"," + port, "OK", false);	
 	serialinterface->pollForResponseFromCommand("AT+SDATASTART=1,1", "OK", false);	
 	if(serialinterface->pollForResponseFromCommand("AT+SDATASTATUS=1", "+SOCKSTATUS:  1,1", true))
@@ -122,7 +107,7 @@ bool GSMInterface::openTCPSocket(String server, int port)
 	}
 }
 
-void GSMInterface::closeSocket()
+void GSMInterface::closeTCPSocket()
 {
 	serialinterface->printlnToGSM("AT+SDATASTART=1,0");	
 	delay(200);

@@ -13,6 +13,9 @@ class HTTPPost
 	public:
 		HTTPPost();
 		int initialise(HardwareSerial *_usbSerial, HardwareSerial *_GSMSerial, String pdpContext, String userPassword, byte gsmResetPin);
+		bool openTCPSocket(String server, int port);
+		void closeTCPSocket();
+		bool sendRawPostPacket(String host, int port, String path, String data, String contentType);
 		int post(String server, int port, String path, String content, String contentType);
 		int get(String server, int port, String path, String content);
 };

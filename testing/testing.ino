@@ -18,7 +18,8 @@ void setup()
 
 void loop() 
 {
-  switch(post.post("ec2-50-112-222-224.us-west-2.compute.amazonaws.com", 8161, "/api/bank/action/deposit.php", "bankid=8&amount=1.00", "Content-Type: application/x-www-form-urlencoded"))
+  //this still works
+  switch(post.post("scottwilliams.org.uk", 80, "/test.php", "data=roflcopyers", "Content-Type: application/x-www-form-urlencoded"))
   {
     case 200: Serial.println("Data successfully sent");
               break;
@@ -27,5 +28,29 @@ void loop()
     case 501: Serial.println("Data not successfully sent");
               break;
   }
-  delay(5000);
+  
+  //new
+  post.openTCPSocket("scottwilliams.org.uk", 80);
+  delay(100);
+  //Serial1.flush() probably does the same thing
+  while(Serial1.available())
+  {
+    Serial1.read();
+  }
+    
+  for(int i = 0; i < 30; i ++)
+  {
+    //you could try changing these
+    delay(100);
+    
+    while(!post.sendRawPostPacket("scottwilliams.org.uk", 80, "/posttest.php", "data="+String(i)+"||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||", "Content-Type: application/x-www-form-urlencoded"))
+    {
+       post.openTCPSocket("scottwilliams.org.uk", 80);
+       delay(100);
+    }
+  }
+  
+  post.closeTCPSocket();
+  
+  while(1){}
 }
