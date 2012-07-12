@@ -30,7 +30,10 @@ void loop()
   }
   
   //new
-  post.openTCPSocket("scottwilliams.org.uk", 80);
+  if(!post.openTCPSocket("scottwilliams.org.uk", 80))
+  {
+    //opening socket failed hard reset and recall initalise
+  }
   delay(100);
   //Serial1.flush() probably does the same thing
   while(Serial1.available())
@@ -45,6 +48,9 @@ void loop()
     
     while(!post.sendRawPostPacket("scottwilliams.org.uk", 80, "/posttest.php", "data="+String(i)+"||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||", "Content-Type: application/x-www-form-urlencoded"))
     {
+       //sending data failed, close socket, reopen and resend data
+       post.closeTCPSocket();
+       delay(100);
        post.openTCPSocket("scottwilliams.org.uk", 80);
        delay(100);
     }
