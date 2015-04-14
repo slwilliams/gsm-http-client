@@ -46,7 +46,7 @@ void loop()
     //you could try changing these
     delay(100);
     
-    while(!post.sendRawPostPacket("scottwilliams.org.uk", 80, "/posttest.php", "data="+String(i)+"||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||", "Content-Type: application/x-www-form-urlencoded"))
+    while(!post.sendRawPostPacket("scottwilliams.org.uk", 80, "/posttest.php", "data="+String(i)+"|", "Content-Type: application/x-www-form-urlencoded"))
     {
        //sending data failed, close socket, reopen and resend data
        post.closeTCPSocket();
