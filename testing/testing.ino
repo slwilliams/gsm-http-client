@@ -18,7 +18,7 @@ void setup()
 
 void loop() 
 {
-  //this still works
+  // A single post request
   switch(post.post("scottwilliams.org.uk", 80, "/test.php", "data=roflcopyers", "Content-Type: application/x-www-form-urlencoded"))
   {
     case 200: Serial.println("Data successfully sent");
@@ -29,7 +29,7 @@ void loop()
               break;
   }
   
-  //new
+  // Sending multiple packets down a single TCP socket
   if(!post.openTCPSocket("scottwilliams.org.uk", 80))
   {
     //opening socket failed hard reset and recall initalise
