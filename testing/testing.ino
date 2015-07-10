@@ -19,7 +19,7 @@ void setup()
 void loop() 
 {
   // A single post request
-  switch(post.post("scottwilliams.org.uk", 80, "/test.php", "data=roflcopyers", "Content-Type: application/x-www-form-urlencoded"))
+  switch(post.post("scottwilliams.org.uk", 80, "/test.php", "data=someDataHere", "Content-Type: application/x-www-form-urlencoded"))
   {
     case 200: Serial.println("Data successfully sent");
               break;
